@@ -1,8 +1,6 @@
 const express = require("express");
 const bodyparser = require("body-parser");
 const https = require("https");
-const { response } = require("express");
-const { json } = require("body-parser");
 
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -14,15 +12,23 @@ app.use(express.static("public"));
 app.get("/", function (req, res) {
   const url =
     "https://api.openweathermap.org/data/2.5/weather?q=Udaipur&units=metric&appid=6ae7ba12814b80647902e92c699bb41e";
+
   https.get(url, function (response) {
     console.log(response.statusCode);
     response.on("data", function (data) {
       const weatherdata = JSON.parse(data);
-      const temp = weatherdata.weather[0].description;
+      const temp = weatherdata.main.temp;
+      const icon = weatherdata.weather[0].icon;
+      const imageURL = " http://openweathermap.org/img/wn/" + icon + "@2x.png";
+      const weatherdes = weatherdata.weather[0].description;
       console.log(temp);
+      res.setHeader("Content-Type", "text/html");
+      res.write("The tempreature in Udaipur is " + temp + "°C");
+      res.write("<h1>The weather is " + weatherdes + "</h1>");
+      res.write("<img src =" + imageURL + ">");
+      res.send();
     });
   });
-  res.send("hello");
 });
 
 // app.post("/", function (req, res) {
